@@ -1,12 +1,13 @@
 import { useJsApiLoader } from "@react-google-maps/api";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "./App.css";
 import { Autocomplete } from "./components/AutoComplete/AutoComplete";
 import { Map } from "./components/Map/Map";
+import { getBrowserLocation } from "./utils/geo";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
-const defaultCenter = {
+export const defaultCenter = {
   lat: 53.893009,
   lng: 27.567444,
 };
@@ -50,6 +51,16 @@ function App() {
 
   const clear = useCallback(() => {
     setMarkers([]);
+  }, []);
+
+  useEffect(() => {
+    getBrowserLocation()
+      .then((curLoc: any) => {
+        setCenter(curLoc);
+      })
+      .catch((defaultLocation) => {
+        setCenter(defaultLocation);
+      });
   }, []);
 
   return (
