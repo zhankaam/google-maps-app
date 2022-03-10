@@ -1,7 +1,10 @@
-import React, { FC, useRef } from "react";
+import React, { FC, useCallback, useRef } from "react";
 import { GoogleMap } from "@react-google-maps/api";
 import "./Map.css";
 import { defaultTheme } from "./Theme";
+import { CurrentLocationMarker } from "../Markers/CurrentLocationMarker/CurrentLocationMarker";
+import { MODES } from "../../App";
+import { Home } from "../Markers/Home/Home";
 
 // styles https://snazzymaps.com/
 
@@ -29,10 +32,13 @@ type Props = {
   center: {
     lat: number;
     lng: number;
-  }
+  },
+  mode: number;
+  markers: any,
+  onMarkerAdd: (coordinates: {lng: number, lat: number}) => void;
 }
 
-export const Map: FC<Props> = ({center}) => {
+export const Map: FC<Props> = ({center, mode, markers, onMarkerAdd}) => {
   const mapRef = useRef(undefined);
 
   const onLoad = React.useCallback(function callback(map) {
@@ -43,6 +49,14 @@ export const Map: FC<Props> = ({center}) => {
      mapRef.current = undefined
   }, [])
 
+  const onCLick = useCallback((loc: any) => {
+    if(mode === MODES.SET_MARKERS){
+     const lat = loc.latLng.lat();
+     const lng = loc.latLng.lng();
+     onMarkerAdd({lng, lat});
+    }
+  }, [mode, onMarkerAdd])
+
   return (
     <div className="container">
       <GoogleMap
@@ -51,10 +65,11 @@ export const Map: FC<Props> = ({center}) => {
         zoom={10}
         onLoad={onLoad}
         onUnmount={onUnmount}
+        onClick={onCLick}
         options={defaultOptions}
       >
-        {/* Child components, such as markers, info windows, etc. */}
-        <></>
+       <CurrentLocationMarker position={center} />
+       {markers.map((pos: any) => <Home key={pos.lng} position={pos}/>)}
       </GoogleMap>
     </div>
   );

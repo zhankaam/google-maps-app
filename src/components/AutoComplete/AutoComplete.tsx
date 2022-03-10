@@ -8,9 +8,10 @@ import "./AutoComplete.css";
 
 type Props = {
   isLoaded: boolean;
+  onSelect: (coordinates: {lat: number; lng: number}) => void;
 }
 
-export const Autocomplete: FC<Props> = ({ isLoaded }) => {
+export const Autocomplete: FC<Props> = ({ isLoaded, onSelect }) => {
   const {
     ready,
     value,
@@ -34,10 +35,8 @@ export const Autocomplete: FC<Props> = ({ isLoaded }) => {
   };
 
   const handleSelect =
-    ({ description }: { description: any }) =>
+    ({ description }: { description: string }) =>
     () => {
-      console.log({ description });
-
       // When user selects a place, we can replace the keyword without request data from API
       // by setting the second parameter to "false"
       setValue(description, false);
@@ -47,6 +46,7 @@ export const Autocomplete: FC<Props> = ({ isLoaded }) => {
       getGeocode({ address: description })
         .then((results) => getLatLng(results[0]))
         .then(({ lat, lng }) => {
+          onSelect( { lat, lng });
           console.log("📍 Coordinates: ", { lat, lng });
         })
         .catch((error) => {
